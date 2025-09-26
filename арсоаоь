@@ -1,0 +1,26 @@
+import os
+import pandas as pd
+from kaggle.api.kaggle_api_extended import KaggleApi
+
+api = KaggleApi()
+api.authenticate()
+dataset = 'snap/amazon-fine-food-reviews'
+api.dataset_download_files(dataset, path='./data', unzip=True)
+
+csv_files=[file for file in os.listdir('./data') if file.endswith('.csv')]
+csv_path=os.path.join('./data', csv_files[0])
+
+df=pd.read_csv(csv_path, low_memory=False)
+
+target_keywords = ['score', 'rating', 'vote', 'like', 'grade', 'mark', 'review', 'eval']
+found_targets = []
+
+for col in df.columns:
+    col_lower = col.lower()
+    if any(keyword in col_lower for keyword in target_keywords):
+        found_targets.append(col)
+
+print(f"\nНайденные потенциальные целевые признаки: {found_targets}")
+if found_targets:
+    target_col = found_targets[0]
+    print(f"\n Основной целевой признак: '{target_col}'")
